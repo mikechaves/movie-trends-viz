@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Movie Streaming Trends Visualization</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <!-- Add keyboard controls -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="debug-panel">
+        <p id="debug-info">Loading...</p>
+    </div>
+
+    <!-- VR/AR mode buttons -->
+    <div id="mode-buttons">
+        <button id="vr-button">Enter VR</button>
+        <button id="ar-button">Enter AR</button>
+    </div>
+
+    <a-scene debug
+        webxr="optionalFeatures: hit-test, local-floor, bounded-floor"
+        device-orientation-permission-ui="enabled: false"
+        audio-controls>
+        
+        <!-- Asset Management -->
+        <a-assets>
+            <audio id="main-audio" src="audio/main-theme.mp3" preload="auto"></audio>
+            <audio id="action-audio" src="audio/action-theme.mp3" preload="auto"></audio>
+            <audio id="comedy-audio" src="audio/comedy-theme.mp3" preload="auto"></audio>
+            <audio id="drama-audio" src="audio/drama-theme.mp3" preload="auto"></audio>
+            <audio id="horror-audio" src="audio/horror-theme.mp3" preload="auto"></audio>
+            <audio id="sciFi-audio" src="audio/scifi-theme.mp3" preload="auto"></audio>
+            
+            <img id="filmstripMainTexture" src="textures/filmstrip-main.svg" crossorigin="anonymous">
+            <img id="filmstripTexture" src="textures/filmstrip.svg" crossorigin="anonymous">
+            <!-- Horror Movies -->
+            <img id="poster-horror-2020" src="posters/horror/2020_empty_house.jpg" crossorigin="anonymous">
+            <img id="poster-horror-2021" src="posters/horror/2021_digital_demon.jpg" crossorigin="anonymous">
+            <!-- Add all other posters -->
+        </a-assets>
+
+        <!-- Environment -->
+        <a-sky color="#1A1A1A"></a-sky>
+        <a-plane position="0 -2 -4" rotation="-90 0 0" width="40" height="40" color="#333333"></a-plane>
+        
+        <!-- Lighting -->
+        <a-light type="ambient" intensity="0.5"></a-light>
+        <a-light type="directional" position="-1 1 0" intensity="0.6"></a-light>
+        <a-light type="directional" position="1 1 0" intensity="0.6"></a-light>
+        
+        <!-- Camera Rig with Multiple Control Schemes -->
+        <a-entity id="rig" position="0 0 0">
+            <a-entity id="camera" 
+                camera="active: true"
+                position="0 1.6 0"
+                look-controls="pointerLockEnabled: false"
+                wasd-controls="keys: wasd; acceleration: 20">
+                <a-entity cursor="fuse: false"
+                    raycaster="objects: .clickable"
+                    position="0 0 -1"
+                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+                    material="color: white; shader: flat">
+                </a-entity>
+            </a-entity>
+        </a-entity>
+        
+        <!-- Visualization Container -->
+        <a-entity id="visualization-container" genre-bars></a-entity>
+
+        <!-- Platform-specific UI elements -->
+        <a-entity id="ar-instructions" 
+            text="value: Tap to place visualization; align: center; width: 2"
+            position="0 0.5 -2"
+            visible="false">
+        </a-entity>
+    </a-scene>
+
+    <!-- Platform Detection and Mode Switching -->
+    <script>
+        // Handle platform detection and mode switching
+        const scene = document.querySelector('a-scene');
+        const vrButton = document.getElementById('vr-button');
+        const arButton = document.getElementById('ar-button');
+        const arInstructions = document.getElementById('ar-instructions');
+
+        // Check for WebXR support
+        if (navigator.xr) {
+            navigator.xr.isSessionSupported('immersive-vr').then(supported => {
+                vrButton.style.display = supported ? 'block' : 'none';
+            });
+            
+            navigator.xr.isSessionSupported('immersive-ar').then(supported => {
+                arButton.style.display = supported ? 'block' : 'none';
+            });
+        } else {
+            document.getElementById('mode-buttons').style.display = 'none';
+        }
+
+        // VR mode handler
+        vrButton.addEventListener('click', function() {
+            scene.enterVR();
+        });
+
+        // AR mode handler
+        arButton.addEventListener('click', function() {
+            scene.enterAR();
+            arInstructions.setAttribute('visible', 'true');
+        });
+
+        // Listen for mode changes
+        scene.addEventListener('enter-vr', function() {
+            document.getElementById('debug-panel').style.display = 'none';
+            document.getElementById('mode-buttons').style.display = 'none';
+        });
+
+        scene.addEventListener('exit-vr', function() {
+            document.getElementById('debug-panel').style.display = 'block';
+            document.getElementById('mode-buttons').style.display = 'block';
+            arInstructions.setAttribute('visible', 'false');
+        });
+    </script>
+
+    <!-- Main Application Logic -->
+    <script src="script.js"></script>
+
+    <style>
+        #mode-buttons {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+        }
+
+        #mode-buttons button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+
+        #mode-buttons button:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+    </style>
+</body>
+</html>

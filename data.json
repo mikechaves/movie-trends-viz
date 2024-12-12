@@ -1,0 +1,7 @@
+[
+    { "year": "2020", "action": 15, "comedy": 10, "drama": 20, "horror": 5, "sciFi": 10 },
+    { "year": "2021", "action": 25, "comedy": 20, "drama": 25, "horror": 15, "sciFi": 20 },
+    { "year": "2022", "action": 20, "comedy": 25, "drama": 30, "horror": 20, "sciFi": 25 },
+    { "year": "2023", "action": 30, "comedy": 45, "drama": 50, "horror": 10, "sciFi": 30 },
+    { "year": "2024", "action": 35, "comedy": 50, "drama": 45, "horror": 15, "sciFi": 40 }
+]
